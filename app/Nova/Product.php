@@ -3,31 +3,25 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
-use Laravel\Nova\Auth\PasswordValidationRules;
-use Laravel\Nova\Fields\Gravatar;
+use Laravel\Nova\Card;
+use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Password;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Filters\Filter;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Lenses\Lens;
 use Laravel\Nova\Menu\MenuItem;
 
-class User extends Resource
+class Product extends Resource
 {
-    use PasswordValidationRules;
-
-    /**
-     * The model the resource corresponds to.
-     *
-     * @var class-string<\App\Models\User>
-     */
-    public static $model = \App\Models\User::class;
+    public static string $model = \App\Models\Product::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'name';
+    public static $title = 'id';
 
     /**
      * The columns that should be searched.
@@ -35,42 +29,26 @@ class User extends Resource
      * @var array
      */
     public static $search = [
-        'id', 'name', 'email',
+        'id',
     ];
 
     /**
      * Get the fields displayed by the resource.
      *
-     * @return array<int, \Laravel\Nova\Fields\Field|\Laravel\Nova\Panel|\Laravel\Nova\ResourceTool|\Illuminate\Http\Resources\MergeValue>
+     * @return array<int, Field>
      */
     public function fields(NovaRequest $request): array
     {
         return [
             ID::make()->sortable(),
-
-            Gravatar::make()->maxWidth(50),
-
-            Text::make('Name')
-                ->sortable()
-                ->rules('required', 'max:255'),
-
-            Text::make('Email')
-                ->sortable()
-                ->rules('required', 'email', 'max:254')
-                ->creationRules('unique:users,email')
-                ->updateRules('unique:users,email,{{resourceId}}'),
-
-            Password::make('Password')
-                ->onlyOnForms()
-                ->creationRules($this->passwordRules())
-                ->updateRules($this->optionalPasswordRules()),
+            Text::make('Name')->sortable(),
         ];
     }
 
     /**
-     * Get the cards available for the request.
+     * Get the cards available for the resource.
      *
-     * @return array<int, \Laravel\Nova\Card>
+     * @return array<int, Card>
      */
     public function cards(NovaRequest $request): array
     {
@@ -80,7 +58,7 @@ class User extends Resource
     /**
      * Get the filters available for the resource.
      *
-     * @return array<int, \Laravel\Nova\Filters\Filter>
+     * @return array<int, Filter>
      */
     public function filters(NovaRequest $request): array
     {
@@ -90,7 +68,7 @@ class User extends Resource
     /**
      * Get the lenses available for the resource.
      *
-     * @return array<int, \Laravel\Nova\Lenses\Lens>
+     * @return array<int, Lens>
      */
     public function lenses(NovaRequest $request): array
     {
@@ -99,14 +77,15 @@ class User extends Resource
 
     /**
      * Get the actions available for the resource.
-     *
-     * @return array<int, \Laravel\Nova\Actions\Action>
      */
     public function actions(NovaRequest $request): array
     {
         return [];
     }
 
+    /**
+     * Get the menu that should represent the resource.
+     */
     public function menu(Request $request): MenuItem
     {
         return parent::menu($request)->withBadge(function () {
